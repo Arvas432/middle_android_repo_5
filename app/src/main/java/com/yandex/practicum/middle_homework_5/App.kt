@@ -1,6 +1,7 @@
 package com.yandex.practicum.middle_homework_5
 
 import android.app.Application
+import com.example.settings.di.settingsModule
 import com.yandex.practicum.middle_homework_5.data.SourceProvider
 import com.yandex.practicum.middle_homework_5.di.appModule
 import org.koin.android.ext.koin.androidContext
@@ -14,7 +15,7 @@ class App : Application() {
         startKoin {
             androidLogger()
             androidContext(this@App)
-            modules(appModule)
+            modules(appModule, settingsModule)
         }
     }
 }
