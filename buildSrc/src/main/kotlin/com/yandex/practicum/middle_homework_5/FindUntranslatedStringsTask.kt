@@ -7,10 +7,14 @@ import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 
 abstract class FindUntranslatedStringsTask : DefaultTask() {
+    companion object {
+        const val RES_DIR = "src/main/res"
+        const val STRINGS_DIR = "values/strings.xml"
+    }
     @TaskAction
     fun findUntranslatedStrings() {
-        val resDir = File(project.projectDir, "src/main/res")
-        val defaultStringsFile = File(resDir, "values/strings.xml")
+        val resDir = File(project.projectDir, RES_DIR)
+        val defaultStringsFile = File(resDir, STRINGS_DIR)
         val defaultStrings = parseStringNames(defaultStringsFile)
         val valueDirs = resDir.listFiles { file ->
             file.isDirectory && file.name.startsWith("values-") && file.name != "values"
@@ -19,17 +23,18 @@ abstract class FindUntranslatedStringsTask : DefaultTask() {
         valueDirs.forEach { dir ->
             val locale = dir.name.substringAfter("values-")
             val stringsFile = File(dir, "strings.xml")
-            val localeStrings = if (stringsFile.exists()) {
-                parseStringNames(stringsFile)
-            } else {
-                emptyList()
-            }
+            val localeStrings = parseStringNames(stringsFile)
             val missing = defaultStrings.filter { it !in localeStrings }
             if (missing.isNotEmpty()) {
                 missingStrings[locale] = missing
             }
         }
+        generateGradleError(missingStrings)
 
+
+    }
+
+    private fun generateGradleError(missingStrings: Map<String, List<String>>) {
         if (missingStrings.isNotEmpty()) {
             val stringBuilderErrorText = StringBuilder("Missing translations").append(System.lineSeparator())
             missingStrings.forEach { missing ->
@@ -42,19 +47,23 @@ abstract class FindUntranslatedStringsTask : DefaultTask() {
             }
             throw GradleException(stringBuilderErrorText.toString())
         }
-
     }
 
     private fun parseStringNames(file: File): List<String> {
-        val dbFactory = DocumentBuilderFactory.newInstance()
-        val dBuilder = dbFactory.newDocumentBuilder()
-        val doc = dBuilder.parse(file)
-        doc.documentElement.normalize()
-        val stringNodes = doc.getElementsByTagName("string")
-        return (0 until stringNodes.length).mapNotNull { i ->
-            val node = stringNodes.item(i)
-            node.attributes?.getNamedItem("name")?.nodeValue
+        if (file.exists()) {
+            val dbFactory = DocumentBuilderFactory.newInstance()
+            val dBuilder = dbFactory.newDocumentBuilder()
+            val doc = dBuilder.parse(file)
+            doc.documentElement.normalize()
+            val stringNodes = doc.getElementsByTagName("string")
+            return (0 until stringNodes.length).mapNotNull { i ->
+                val node = stringNodes.item(i)
+                node.attributes?.getNamedItem("name")?.nodeValue
+            }
+        } else {
+            return emptyList()
         }
+
     }
 
 }
