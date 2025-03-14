@@ -9,9 +9,9 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.yandex.practicum.middle_homework_5.data.data_store.SettingContainer.Companion.DEFAULT_REFRESH_PERIOD
-import com.yandex.practicum.middle_homework_5.data.data_store.SettingContainer.Companion.FIST_LAUNCH_DELAY
-import com.yandex.practicum.middle_homework_5.ui.contract.DataStoreService
+import com.example.settings.data_store.SettingContainer.Companion.DEFAULT_REFRESH_PERIOD
+import com.example.settings.data_store.SettingContainer.Companion.FIST_LAUNCH_DELAY
+import com.example.settings.ui.contract.SettingsRepository
 import com.yandex.practicum.middle_homework_5.ui.contract.WorkManagerService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit
 
 class WorkManagerServiceImp(
     private val context: Context,
-    private val dataStoreService: DataStoreService,
+    private val settingsRepository: SettingsRepository,
     private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
 ) : WorkManagerService {
     private var period:Long = DEFAULT_REFRESH_PERIOD
@@ -29,7 +29,7 @@ class WorkManagerServiceImp(
 
     init {
         scope.launch {
-            dataStoreService.settingData.collect{ setting ->
+            settingsRepository.settingData.collect{ setting ->
                 period = setting.periodic
                 delayed = setting.delayed
                 Log.i(TAG, "DataStoreService get data : period = $period | delayed $delayed")

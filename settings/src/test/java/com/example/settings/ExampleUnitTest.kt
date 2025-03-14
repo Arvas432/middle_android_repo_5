@@ -1,4 +1,4 @@
-package com.yandex.practicum.middle_homework_5
+package com.example.settings
 
 import org.junit.Test
 

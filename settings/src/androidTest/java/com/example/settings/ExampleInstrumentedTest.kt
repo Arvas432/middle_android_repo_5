@@ -1,4 +1,4 @@
-package com.yandex.practicum.middle_homework_5
+package com.example.settings
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.yandex.practicum.webMockServer", appContext.packageName)
+        assertEquals("com.example.settings.test", appContext.packageName)
     }
 }
